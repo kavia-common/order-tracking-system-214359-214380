@@ -1,48 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import LookupPage from "./pages/LookupPage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+import NotificationSettingsPage from "./pages/NotificationSettingsPage";
+import AdminPanelPage from "./pages/AdminPanelPage";
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
+  /** Application entry: routing + providers. */
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/lookup" element={<LookupPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <OrderHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AdminPanelPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<DashboardPage />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
